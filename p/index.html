@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Combo Word Puzzle</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧩</text></svg>">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="screen">
+        <div class="loading-container">
+            <div class="loading-spinner"></div>
+            <h2>Loading Puzzle Game...</h2>
+        </div>
+    </div>
+
+    <!-- Home Screen -->
+    <div id="home-screen" class="screen hidden">
+        <div class="container">
+            <header class="game-header">
+                <div class="coins-display">
+                    <i class="fas fa-coins"></i>
+                    <span id="coins-count">100</span>
+                </div>
+                <div class="header-actions">
+                    <button id="settings-btn" class="icon-btn" aria-label="Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </header>
+
+            <main class="home-content">
+                <div class="game-title">
+                    <h1><i class="fas fa-images"></i> Image Combo</h1>
+                    <h2>Word Puzzle</h2>
+                    <p class="game-subtitle">Combine images to find the word!</p>
+                </div>
+
+                <div class="home-buttons">
+                    <button id="play-btn" class="btn btn-primary">
+                        <i class="fas fa-play"></i> Play Now
+                    </button>
+                    <button id="levels-btn" class="btn btn-secondary">
+                        <i class="fas fa-layer-group"></i> Level Select
+                    </button>
+                    <button id="stats-btn" class="btn btn-secondary">
+                        <i class="fas fa-chart-bar"></i> Statistics
+                    </button>
+                    <button id="daily-reward-btn" class="btn btn-reward">
+                        <i class="fas fa-gift"></i> Daily Reward
+                    </button>
+                </div>
+
+                <div class="featured-level">
+                    <p>Can you solve this puzzle?</p>
+                    <div class="preview-images">
+                        <div class="preview-img-container">
+                            <div class="preview-img" style="background-color: #ff9966;">🌲</div>
+                            <span class="preview-label">Tree</span>
+                        </div>
+                        <div class="preview-plus">+</div>
+                        <div class="preview-img-container">
+                            <div class="preview-img" style="background-color: #66ccff;">👨</div>
+                            <span class="preview-label">Man</span>
+                        </div>
+                        <div class="preview-equals">=</div>
+                        <div class="preview-answer">Treeman</div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-cog"></i> Game Settings</h3>
+                <button id="close-settings" class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-option">
+                    <div class="setting-label">
+                        <i class="fas fa-volume-up"></i>
+                        <span>Sound Effects</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="sound-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-option">
+                    <div class="setting-label">
+                        <i class="fas fa-moon"></i>
+                        <span>Dark Theme</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-option">
+                    <div class="setting-label">
+                        <i class="fas fa-vibrate"></i>
+                        <span>Vibration</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="vibration-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="modal-actions">
+                    <button id="reset-progress" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Reset Progress
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Level Selection Screen -->
+    <div id="level-screen" class="screen hidden">
+        <div class="container">
+            <header class="screen-header">
+                <button id="back-from-levels" class="back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2>Select Level</h2>
+                <div class="coins-display">
+                    <i class="fas fa-coins"></i>
+                    <span id="level-coins-count">100</span>
+                </div>
+            </header>
+
+            <div class="difficulty-tabs">
+                <button class="difficulty-tab active" data-difficulty="all">All Levels</button>
+                <button class="difficulty-tab" data-difficulty="easy">Easy</button>
+                <button class="difficulty-tab" data-difficulty="medium">Medium</button>
+                <button class="difficulty-tab" data-difficulty="hard">Hard</button>
+            </div>
+
+            <div class="levels-container">
+                <div class="levels-grid" id="levels-grid">
+                    <!-- Levels will be generated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gameplay Screen -->
+    <div id="game-screen" class="screen hidden">
+        <div class="container">
+            <header class="game-header">
+                <button id="back-from-game" class="back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="level-info">
+                    Level <span id="current-level">1</span>
+                    <div class="difficulty-badge easy">Easy</div>
+                </div>
+                <div class="header-actions">
+                    <button id="hint-btn" class="icon-btn" aria-label="Hints">
+                        <i class="fas fa-lightbulb"></i>
+                    </button>
+                    <div class="coins-display">
+                        <i class="fas fa-coins"></i>
+                        <span id="game-coins-count">100</span>
+                    </div>
+                </div>
+            </header>
+
+            <main class="game-content">
+                <div class="puzzle-container">
+                    <div class="images-container">
+                        <div class="image-box" id="image1">
+                            <div class="image-placeholder" id="img-placeholder1">?</div>
+                            <div class="image-label" id="image-label1">Image 1</div>
+                        </div>
+                        <div class="plus-sign">+</div>
+                        <div class="image-box" id="image2">
+                            <div class="image-placeholder" id="img-placeholder2">?</div>
+                            <div class="image-label" id="image-label2">Image 2</div>
+                        </div>
+                        <div class="equals-sign">=</div>
+                    </div>
+
+                    <div class="answer-container">
+                        <div class="answer-slots" id="answer-slots">
+                            <!-- Answer slots will be generated by JavaScript -->
+                        </div>
+                        <div class="answer-actions">
+                            <button id="clear-answer" class="btn btn-small">
+                                <i class="fas fa-backspace"></i> Clear
+                            </button>
+                            <button id="submit-answer" class="btn btn-small btn-primary">
+                                <i class="fas fa-check"></i> Submit
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="hint-container">
+                        <div class="hint-text" id="hint-text">
+                            <!-- Hint will appear here -->
+                        </div>
+                    </div>
+
+                    <div class="keyboard-container">
+                        <div class="keyboard" id="keyboard">
+                            <!-- Keyboard will be generated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Hint Modal -->
+    <div id="hint-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-lightbulb"></i> Get a Hint</h3>
+                <button id="close-hint" class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-description">Use hints to solve challenging puzzles. Each hint costs coins.</p>
+                
+                <div class="hint-options">
+                    <div class="hint-option" data-hint="reveal">
+                        <div class="hint-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="hint-details">
+                            <h4>Reveal a Letter</h4>
+                            <p>Reveal one correct letter in the answer.</p>
+                        </div>
+                        <div class="hint-cost">
+                            <i class="fas fa-coins"></i> 20
+                        </div>
+                    </div>
+                    
+                    <div class="hint-option" data-hint="remove">
+                        <div class="hint-icon">
+                            <i class="fas fa-filter"></i>
+                        </div>
+                        <div class="hint-details">
+                            <h4>Remove Wrong Letters</h4>
+                            <p>Remove incorrect letters from the keyboard.</p>
+                        </div>
+                        <div class="hint-cost">
+                            <i class="fas fa-coins"></i> 30
+                        </div>
+                    </div>
+                    
+                    <div class="hint-option" data-hint="clue">
+                        <div class="hint-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="hint-details">
+                            <h4>Show Clue</h4>
+                            <p>Get a text clue about the combined word.</p>
+                        </div>
+                        <div class="hint-cost">
+                            <i class="fas fa-coins"></i> 25
+                        </div>
+                    </div>
+                    
+                    <div class="hint-option" data-hint="skip">
+                        <div class="hint-icon">
+                            <i class="fas fa-forward"></i>
+                        </div>
+                        <div class="hint-details">
+                            <h4>Skip Level</h4>
+                            <p>Skip this level and move to the next one.</p>
+                        </div>
+                        <div class="hint-cost">
+                            <i class="fas fa-coins"></i> 50
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hint-notice">
+                    <p>You have <span id="available-coins">100</span> <i class="fas fa-coins"></i> coins available</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Reward Modal -->
+    <div id="daily-reward-modal" class="modal hidden">
+        <div class="modal-content reward-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-gift"></i> Daily Reward</h3>
+                <button id="close-daily" class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="reward-calendar">
+                    <div class="reward-day active">
+                        <div class="day-label">Day 1</div>
+                        <div class="day-reward">
+                            <i class="fas fa-coins"></i>
+                            <span>10</span>
+                        </div>
+                    </div>
+                    <div class="reward-day">
+                        <div class="day-label">Day 2</div>
+                        <div class="day-reward">
+                            <i class="fas fa-coins"></i>
+                            <span>20</span>
+                        </div>
+                    </div>
+                    <div class="reward-day">
+                        <div class="day-label">Day 3</div>
+                        <div class="day-reward">
+                            <i class="fas fa-coins"></i>
+                            <span>30</span>
+                        </div>
+                    </div>
+                    <div class="reward-day">
+                        <div class="day-label">Day 4</div>
+                        <div class="day-reward">
+                            <i class="fas fa-coins"></i>
+                            <span>40</span>
+                        </div>
+                    </div>
+                    <div class="reward-day">
+                        <div class="day-label">Day 5</div>
+                        <div class="day-reward">
+                            <i class="fas fa-coins"></i>
+                            <span>50</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="reward-claim">
+                    <p>Come back tomorrow for more coins!</p>
+                    <button id="claim-reward" class="btn btn-reward">
+                        <i class="fas fa-gift"></i> Claim 10 Coins
+                    </button>
+                    <p class="reward-note">Your current streak: <span id="streak-days">1</span> days</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Screen -->
+    <div id="stats-screen" class="screen hidden">
+        <div class="container">
+            <header class="screen-header">
+                <button id="back-from-stats" class="back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2>Game Statistics</h2>
+                <div class="coins-display">
+                    <i class="fas fa-coins"></i>
+                    <span id="stats-coins-count">100</span>
+                </div>
+            </header>
+
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Levels Completed</h3>
+                        <p class="stat-value" id="completed-levels">0/50</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Success Rate</h3>
+                        <p class="stat-value" id="success-rate">0%</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Total Coins Earned</h3>
+                        <p class="stat-value" id="total-coins">100</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Hints Used</h3>
+                        <p class="stat-value" id="hints-used">0</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Play Time</h3>
+                        <p class="stat-value" id="play-time">0 min</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>Current Streak</h3>
+                        <p class="stat-value" id="current-streak">1 day</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="difficulty-stats">
+                <h3>Progress by Difficulty</h3>
+                <div class="difficulty-progress">
+                    <div class="difficulty-stat">
+                        <span class="difficulty-label easy">Easy</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill easy" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-text" id="easy-progress">0/15</span>
+                    </div>
+                    <div class="difficulty-stat">
+                        <span class="difficulty-label medium">Medium</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill medium" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-text" id="medium-progress">0/20</span>
+                    </div>
+                    <div class="difficulty-stat">
+                        <span class="difficulty-label hard">Hard</span>
+                        <div class="progress-bar">
+                            <div class="progress-fill hard" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-text" id="hard-progress">0/15</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Correct Answer Celebration -->
+    <div id="celebration" class="celebration hidden">
+        <div class="celebration-content">
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <h2><i class="fas fa-trophy"></i> Excellent!</h2>
+            <p class="celebrated-answer" id="celebrated-answer">Treeman</p>
+            <p>You solved the puzzle correctly!</p>
+            <div class="reward-earned">
+                <p>Coins earned: <span id="coins-earned">+10</span></p>
+                <div class="coins-animation">
+                    <i class="fas fa-coins"></i>
+                </div>
+            </div>
+            <div class="celebration-actions">
+                <button id="next-level" class="btn btn-primary">
+                    Next Level <i class="fas fa-arrow-right"></i>
+                </button>
+                <button id="back-to-levels" class="btn btn-secondary">
+                    <i class="fas fa-layer-group"></i> Level Select
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wrong Answer Feedback -->
+    <div id="wrong-answer" class="wrong-feedback hidden">
+        <div class="wrong-content">
+            <h2><i class="fas fa-times-circle"></i> Try Again</h2>
+            <p>That's not the correct answer.</p>
+            <button id="try-again" class="btn btn-primary">Try Again</button>
+            <button id="get-hint" class="btn btn-secondary">Get a Hint</button>
+        </div>
+    </div>
+
+    <!-- Service Worker Registration -->
+    <script src="game.js"></script>
+    <script>
+        // Register Service Worker for offline functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
